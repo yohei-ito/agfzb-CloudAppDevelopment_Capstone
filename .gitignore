@@ -141,3 +141,5 @@ server/djangoapp/migrations/
 *.pyc
 server/djangoapp/migrations/
 
+#node_modules
+cloudant/data/node_modules/
