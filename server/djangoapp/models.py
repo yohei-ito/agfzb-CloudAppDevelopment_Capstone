@@ -31,7 +31,7 @@ class CarMake(models.Model):
 class CarModel(models.Model):
     SEDAN = 'sedan'
     SUV = 'suv'
-    WAGON 'wagon'
+    WAGON = 'wagon'
     CAR_TYPE = [
         (SEDAN, 'Sedan'),
         (SUV, 'SUV'),
