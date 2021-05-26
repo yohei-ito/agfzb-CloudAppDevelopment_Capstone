@@ -1,5 +1,6 @@
 import requests
 import json
+import asyncio
 from .models import CarDealer, DealerReview
 from requests.auth import HTTPBasicAuth
 
@@ -7,13 +8,15 @@ from requests.auth import HTTPBasicAuth
 # Create a `get_request` to make HTTP GET requests
 # e.g., response = requests.get(url, params=params, headers={'Content-Type': 'application/json'},
 #                                     auth=HTTPBasicAuth('apikey', api_key))
-def get_request(url, **kwargs):
+def get_request(url, api_key=None, **kwargs):
     print(kwargs)
     print("GET from {} ".format(url))
+    print("API Key {} ".format(api_key))
     try:
-        # Call get method of requests library with URL and parameters
-        response = requests.get(url, headers={'Content-Type': 'application/json'},
-                                    params=kwargs)
+        if api_key:
+            response = requests.get(url, headers={'Content-Type': 'application/json'}, params=kwargs, auth=HTTPBasicAuth('apikey', api_key))
+        else:
+            response = requests.get(url, headers={'Content-Type': 'application/json'}, params=kwargs)
     except:
         # If any error occurs
         print("Network exception occurred")
@@ -67,17 +70,37 @@ def get_dealer_reviews_from_cf(url, **kwargs):
         for review in reviews:
             # Get its content in `doc` object
             review_doc = review
-            # Create a Carreview object with values in `doc` object
-            review_obj = DealerReview(dealership=review_doc["dealership"],name=review_doc["name"], purchase=review_doc["purchase"],
-                                   review=review_doc["review"], purchase_date=review_doc["purchase_date"], car_make=review_doc["car_make"],
-                                   car_model=review_doc["car_model"], car_year=review_doc["car_year"],
-                                   id=review_doc["id"])
+            if review_doc["purchase"]:
+                # Create a Carreview object with values in `doc` object
+                review_obj = DealerReview(dealership=review_doc["dealership"],name=review_doc["name"], purchase=review_doc["purchase"],
+                                    review=review_doc["review"], purchase_date=review_doc["purchase_date"], car_make=review_doc["car_make"],
+                                    car_model=review_doc["car_model"], car_year=review_doc["car_year"],
+                                    id=review_doc["id"])
+            else:
+                review_obj = DealerReview(dealership=review_doc["dealership"],name=review_doc["name"], purchase=review_doc["purchase"],
+                                    review=review_doc["review"],
+                                    id=review_doc["id"])
+            review_obj.sentiment = analyze_review_sentiments(review_obj.review)
+
             results.append(review_obj)
 
     return results
 
 
 # Create an `analyze_review_sentiments` method to call Watson NLU and analyze text
-# def analyze_review_sentiments(text):
+def analyze_review_sentiments(text):
 # - Call get_request() with specified arguments
 # - Get the returned sentiment label such as Positive or Negative
+    result = "Not checked"
+    print(text)
+    try:
+        json_result = get_request(url="https://api.us-south.natural-language-understanding.watson.cloud.ibm.com/instances/6521efe7-d9ad-4487-b0e6-443e6e7e2639/v1/analyze",
+                        api_key="P3iXa9KQMrou-auXaJ034eDh1f4igclRepwmdZ_vsTDP",
+                        version="2021-03-25",
+                        features="sentiment",
+                        language="en",
+                        text=text)
+        result = json_result["sentiment"]["document"]["label"]
+        print(result)
+    finally:
+        return result
