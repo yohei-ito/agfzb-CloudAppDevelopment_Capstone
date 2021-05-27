@@ -3,10 +3,11 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404, render, redirect
 #from .models import related models
-from .restapis import get_dealers_from_cf, get_dealer_reviews_from_cf
+from .restapis import get_dealers_from_cf, get_dealer_reviews_from_cf, post_request
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
 from datetime import datetime
+from django.views.decorators.csrf import csrf_exempt
 import logging
 import json
 
@@ -98,5 +99,31 @@ def get_dealer_details(request, dealer_id):
         return HttpResponse(dealer_details_reviews)
 
 # Create a `add_review` view to submit a review
-# def add_review(request, dealer_id):
+@csrf_exempt
+def add_review(request, dealer_id):
+    if request.method == 'GET':
+        print("GET add_review")
+        return HttpResponse("GET add_reviews for dealerId %s." % dealer_id)
+    elif request.method == 'POST':
+        print("POST add_review")
+        review = {}
+        #user = self.request.user
+        #if user.is_authenticated:
+        print("authenticated")
+        #set requested data
+        review['name']= request.POST['name']
+        review['dealerid'] = dealer_id
+        review['review'] = request.POST['review']
+
+        url="https://645999e8.us-south.apigw.appdomain.cloud/api/review"
+        print(review)
+
+        json_result = post_request(url, review, dealerId=dealer_id)
+        print("---json_result---")
+        print(json_result)
+        return HttpResponse(json_result)
+        #else:
+            #print("NOT authenticated")
+
+
 # ...
