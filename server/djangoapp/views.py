@@ -93,14 +93,18 @@ def get_dealerships(request):
 # def get_dealer_details(request, dealer_id):
 # ...
 def get_dealer_details(request, dealer_id):
+    context = {}
     if request.method == "GET":
         url = "https://645999e8.us-south.apigw.appdomain.cloud/api/review"
         # Get dealers from the URL
         dealer_details = get_dealer_reviews_from_cf(url, dealerId=dealer_id)
         # Concat all dealer's short name
-        dealer_details_reviews = ' '.join([dealer_detail.sentiment for dealer_detail in dealer_details])
+        #dealer_details_reviews = ' '.join([dealer_detail.sentiment for dealer_detail in dealer_details])
+        context["review_list"] = dealer_details
+        context["dealer_id"] = dealer_id
         # Return a list of dealer short name
-        return HttpResponse(dealer_details_reviews)
+        #return HttpResponse(dealer_details_reviews)
+        return render(request, 'djangoapp/dealer_details.html', context)
 
 # Create a `add_review` view to submit a review
 @csrf_exempt
