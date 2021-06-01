@@ -3,6 +3,7 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404, render, redirect
 #from .models import related models
+from .models import CarModel
 from .restapis import get_dealers_from_cf, get_dealer_reviews_from_cf, post_request
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
@@ -109,27 +110,57 @@ def get_dealer_details(request, dealer_id):
 # Create a `add_review` view to submit a review
 @csrf_exempt
 def add_review(request, dealer_id):
+    context = {}
     if request.method == 'GET':
         print("GET add_review")
-        return HttpResponse("GET add_reviews for dealerId %s." % dealer_id)
+        #return HttpResponse("GET add_reviews for dealerId %s." % dealer_id)
+        #url = "https://645999e8.us-south.apigw.appdomain.cloud/api/dealership"
+        # Get dealers from the URL
+        #dealerships = get_dealers_from_cf(url)
+        # Concat all dealer's short name
+        #dealer_details_reviews = ' '.join([dealer_detail.sentiment for dealer_detail in dealer_details])
+        #context["dealership_list"] = dealerships
+        context["dealer_id"] = dealer_id
+        context["cars"] = CarModel.objects.all(),
+        print(CarModel.objects.all())
+        # Return a list of dealer short name
+        #return HttpResponse(dealer_details_reviews)
+        return render(request, 'djangoapp/add_review.html', context)
     elif request.method == 'POST':
         print("POST add_review")
-        review = {}
+        #review = {}
         #user = self.request.user
         #if user.is_authenticated:
-        print("authenticated")
+        #print("authenticated")
         #set requested data
-        review['name']= request.POST['name']
-        review['dealerid'] = dealer_id
-        review['review'] = request.POST['review']
+        #review['name']= request.POST['name']
+        #review['dealerid'] = dealer_id
+        #review['review'] = request.POST['review']
+
+        form = request.POST
+        review = {
+            "name": "{request.user.first_name} {request.user.last_name}",
+            "dealerid": dealer_id,
+            "review": form["content"],
+            "purchase": bool(form.get("purchasecheck")),
+            "id": 99
+            }
+        if form.get("purchasecheck"):
+            review["purchase_date"] = datetime.strptime(form.get("purchase_date"), "%m/%d/%Y").isoformat()
+            car = models.CarModel.objects.get(pk=form["car"])
+            review["car_make"] = car.carmake.name
+            review["car_model"] = car.name
+            review["car_year"]= car.year.strftime("%Y")
+            #review["purchase"] = "ture"
+
+        print(review)
 
         url="https://645999e8.us-south.apigw.appdomain.cloud/api/review"
-        print(review)
 
         json_result = post_request(url, review, dealerId=dealer_id)
         print("---json_result---")
         print(json_result)
-        return HttpResponse(json_result)
+        return redirect("djangoapp:dealer_details", dealer_id=dealer_id)
         #else:
             #print("NOT authenticated")
 

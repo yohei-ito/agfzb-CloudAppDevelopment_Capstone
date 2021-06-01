@@ -48,7 +48,7 @@
           </ul>
     </nav>
     <!-- Add reviews as cards -->
-    <div class="card-columns">
+    <div class="card-deck">
       {% for review in review_list %}
             <div class="card">
               {% if review.sentiment == 'positive' %}

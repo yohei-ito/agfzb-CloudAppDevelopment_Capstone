@@ -83,15 +83,19 @@ def get_dealer_reviews_from_cf(url, **kwargs):
         for review in reviews:
             # Get its content in `doc` object
             review_doc = review
+            print(review_doc["purchase"])
             if review_doc["purchase"]:
                 # Create a Carreview object with values in `doc` object
+                print("true proc")
                 review_obj = DealerReview(dealership=review_doc["dealership"],name=review_doc["name"], purchase=review_doc["purchase"],
                                     review=review_doc["review"], purchase_date=review_doc["purchase_date"], car_make=review_doc["car_make"],
                                     car_model=review_doc["car_model"], car_year=review_doc["car_year"],
                                     id=review_doc["id"])
             else:
+                print("false proc")
                 review_obj = DealerReview(dealership=review_doc["dealership"],name=review_doc["name"], purchase=review_doc["purchase"],
-                                    review=review_doc["review"],
+                                    review=review_doc["review"],purchase_date=None, car_make=None,
+                                    car_model=None, car_year=None,
                                     id=review_doc["id"])
             review_obj.sentiment = analyze_review_sentiments(review_obj.review)
 

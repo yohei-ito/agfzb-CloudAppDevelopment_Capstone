@@ -11,6 +11,73 @@
 
 </head>
     <body>
+      <!--Add a nav bar here -->
+      <nav class="navbar navbar-expand-sm navbar-light bg-light mt-3 mb-3">
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav4" aria-controls="navbarNav4" aria-expanded="false" aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span>
+          </button>
+          <a class="navbar-brand" href="/djangoapp/">Best Cars</a>
+          <div class="collapse navbar-collapse">
+              <ul class="navbar-nav">
+                  <li class="nav-item">
+                      <a class="nav-link" href="/djangoapp/about/">About Us</a>
+                  </li>
+                  <li class="nav-item">
+                      <a class="nav-link" href="/djangoapp/contact/">Contact Us</a>
+                  </li>
+              </ul>
+          </div>
+          <ul class="nav navbar-nav navbar-right">
+                {% if user.is_authenticated %}
+                <li>
+                    <a class="btn btn-link" href="#">{{ user.first_name }}({{ user.username }})</a>
+                    <a class="btn btn-link" href="{% url 'djangoapp:logout' %}">Logout</a>
+                </li>
+                {% else %}
+                <li>
+                    <form class="form-inline" action="{% url 'djangoapp:login' %}" method="post">
+                        {% csrf_token %}
+                        <div class="input-group">
+                            <input type="text" class="form-control" placeholder="Username" name="username" >
+                            <input type="password" class="form-control" placeholder="Password" name="psw" >
+                            <button class="btn btn-primary" type="submit">Login</button>
+                            <a class="btn btn-link" href="{% url 'djangoapp:registration' %}">Sign Up</a>
+                        </div>
+                    </form>
+                </li>
+                {% endif %}
+            </ul>
+      </nav>
     <!--Add review form here -->
+    <main class="container">
+     <form action="{% url 'djangoapp:add_review' dealer_id %}" method="post">
+       {% csrf_token %}
+           <div class="form-group">
+                 <label for="content">Enter the review content:</label>
+                 <textarea class="form-control" id="content" name="content" rows="2" required></textarea>
+             </div>
+           <div class="form-group form-check">
+                 <input class="form-check-input" type="checkbox" name="purchasecheck" id="purchasecheck">
+                 <label for="purchasecheck">Did you purchase the car? (If yes, kindly fill the below information as well. If no, You can just submit the form.)</label>
+             </div>
+           <div class="form-group">
+                 <label for="car">Select your car (model-make-year):</label>
+                 <select name="car" id="car" class="form-select">
+                     {% for car in cars %}
+                         <option selected value={{car.id}}>{{car.name}}-{{car.car_make.name}}-{{ car.year|date:"Y" }}</option>
+                     {% endfor %}
+                 </select>
+             </div>
+           <div class="form-group">
+                 <label for="purchase_date">Select your purchase date:</label>
+                 <input class="form-control" type="text" name="purchase_date" id="purchase_date">
+                   <script type="text/javascript">
+                     $('#purchase_date').datepicker({
+                        format: 'mm/dd/yyyy'
+                      });
+                   </script>
+             </div>
+           <button type="submit" class="btn btn-primary">Submit Review</button>
+     </form>
     </body>
 </html>
