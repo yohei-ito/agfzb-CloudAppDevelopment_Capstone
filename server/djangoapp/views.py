@@ -121,7 +121,7 @@ def add_review(request, dealer_id):
         #dealer_details_reviews = ' '.join([dealer_detail.sentiment for dealer_detail in dealer_details])
         #context["dealership_list"] = dealerships
         context["dealer_id"] = dealer_id
-        context["cars"] = CarModel.objects.all(),
+        context["cars"] = CarModel.objects.all()
         print(CarModel.objects.all())
         # Return a list of dealer short name
         #return HttpResponse(dealer_details_reviews)
