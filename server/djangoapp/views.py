@@ -148,7 +148,7 @@ def add_review(request, dealer_id):
         if form.get("purchasecheck"):
             review["purchase_date"] = datetime.strptime(form.get("purchase_date"), "%m/%d/%Y").isoformat()
             car = models.CarModel.objects.get(pk=form["car"])
-            review["car_make"] = car.carmake.name
+            review["car_make"] = car.carmaker.name
             review["car_model"] = car.name
             review["car_year"]= car.year.strftime("%Y")
             #review["purchase"] = "ture"
